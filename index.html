@@ -17,6 +17,22 @@
         <img width="200" height="200" id="imgNFT" src="" alt="imagem NFT" />
       </div>
     </section>
+    <section>
+      <h2>Novo NFT</h2>
+      <div>
+        <form action="" name="formMint" id="formMint" method="get">
+          <label for="formTo">Endereço da destinatário:</label>
+          <br /><br />
+          <input type="text" placeholder="<0x...>" required name="formTo" id="formTo" />
+          <br /><br />
+          <label for="formMetadados">URL Metadados:</label>
+          <br /><br />
+          <input type="text" placeholder="https://..." required name="formMetadados" id="formMetadados" />
+          <br /><br />
+          <input type="button" value="Mintar (gerar) NFT" onclick="mintar()" />
+        </form>
+      </div>
+    </section>
     <hr />
     <section>
       <h2>Rede e Infra</h2>
@@ -79,5 +95,26 @@
       let contract;
       init();
     </script>
+      <script>
+        async function mintar() {
+          event.preventDefault();
+          const form = document.getElementById("formMint");
+          alert("Aguarde e confirme a transação no Metamask");
+          const tx = await contract.safeMint(form.formTo.value, form.formMetadados.value);
+          console.log("tx enviada: ", tx);
+          alert("Transação enviada a Blockchain. Aguarde.\nTx ID:" + tx.hash);
+          const txReceipt = await tx.wait();
+          console.log("txReceipt: ", txReceipt);
+          if (txReceipt.status === 1) {
+            alert("Parabéns! Novo NFT gerado");
+            form.reset();
+          }
+        }
+        let signer = null;
+        let provider;
+        let network;
+        let contract;
+        init();
+      </script>
   </body>
 </html>
