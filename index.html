@@ -3,16 +3,16 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Pepe NFT</title>
+    <title>Meu NFT</title>
   </head>
   <body>
     <header>
-      <h1>Pepe NFT</h1>
+      <h1>Meu NFT</h1>
     </header>
     <section>
       <h2>Dados NFT</h2>
-      <h3>Nome: <span id="nftNome">&nbsp;</span></h3>
-      <h5>Descrição: <span id="nftDesc">&nbsp;</span></h5>
+      <h3>Nome: <span id="nftNome">Buscando informação...</span></h3>
+      <h5>Descrição: <span id="nftDesc">Buscando informação...</span></h5>
       <div id="divImg" style="display: none">
         <img width="200" height="200" id="imgNFT" src="" alt="imagem NFT" />
       </div>
@@ -40,8 +40,8 @@
       <h3>Rede selecionada: <span id="networkNetworkID">&nbsp;</span></h3>
     </section>
     <script src="corsapiquet.abi.js"></script>
-    <script type="module">
-      import { ethers } from "https://cdnjs.cloudflare.com/ajax/libs/ethers/6.6.1/ethers.min.js";
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.6.1/ethers.umd.min.js"></script>
+    <script>
       async function init() {
         if (window.ethereum == null) {
           // If MetaMask is not installed, we use the default provider,
@@ -51,7 +51,6 @@
           console.log("MetaMask not installed; using read-only defaults");
           provider = ethers.getDefaultProvider();
         } else {
-          alert("O Metamask irá pedir aprovação para acessar essa página.\nPor favor, aceite.");
           // Connect to the MetaMask EIP-1193 object. This is a standard
           // protocol that allows Ethers access to make all read-only
           // requests through MetaMask.
@@ -59,13 +58,15 @@
           // It also provides an opportunity to request access to write
           // operations, which will be performed by the private key
           // that MetaMask manages for the user.
+          alert("O Metamask irá pedir aprovação para acessar essa página.\nPor favor, aceite.");
           signer = await provider.getSigner();
           network = await provider.getNetwork();
-          contract = new ethers.Contract("0x6267BCE27D79e45Cb33e75FA5F7F30Dca2e471f3", abi, provider);
+          contract = new ethers.Contract("0x6267BCE27D79e45Cb33e75FA5F7F30Dca2e471f3", abi, signer);
           console.log("selected provider: ", provider);
           console.log("network:", network);
           console.log("signer: ", signer);
           console.log("contract: ", contract);
+
           const networkAccount = document.getElementById("networkAccount");
           networkAccount.innerHTML = signer.address;
           const networkNetworkID = document.getElementById("networkNetworkID");
@@ -86,7 +87,22 @@
           imgNFT.src = metadados.image;
           const divImg = document.getElementById("divImg");
           divImg.style.display = "block";
-
+        }
+      }
+    </script>
+    <script>
+      async function mintar() {
+        event.preventDefault();
+        const form = document.getElementById("formMint");
+        alert("Aguarde e confirme a transação no Metamask");
+        const tx = await contract.safeMint(form.formTo.value, form.formMetadados.value);
+        console.log("tx enviada: ", tx);
+        alert("Transação enviada a Blockchain. Aguarde.\nTx ID:" + tx.hash);
+        const txReceipt = await tx.wait();
+        console.log("txReceipt: ", txReceipt);
+        if (txReceipt.status === 1) {
+          alert("Parabéns! Novo NFT gerado");
+          form.reset();
         }
       }
       let signer = null;
@@ -95,26 +111,5 @@
       let contract;
       init();
     </script>
-      <script>
-        async function mintar() {
-          event.preventDefault();
-          const form = document.getElementById("formMint");
-          alert("Aguarde e confirme a transação no Metamask");
-          const tx = await contract.safeMint(form.formTo.value, form.formMetadados.value);
-          console.log("tx enviada: ", tx);
-          alert("Transação enviada a Blockchain. Aguarde.\nTx ID:" + tx.hash);
-          const txReceipt = await tx.wait();
-          console.log("txReceipt: ", txReceipt);
-          if (txReceipt.status === 1) {
-            alert("Parabéns! Novo NFT gerado");
-            form.reset();
-          }
-        }
-        let signer = null;
-        let provider;
-        let network;
-        let contract;
-        init();
-      </script>
   </body>
 </html>
